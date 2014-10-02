@@ -65,6 +65,8 @@ function dashboard(){
 		'groups' => $groups,
 		'invites' => $invites
 	);
+
+	$db = $db->disconnect();
 	$app->render('dashboard.php', $params);
 }
 
@@ -81,9 +83,16 @@ function groupview($id){
 	}
 
 	$groups = $db->getGroupInfo($id);
+
+	foreach ($groups as $row){
+		$group = $row;
+		break;
+	}
+
 	$members = $db->getGroupMembers($id);
 
-	$app->render('groupview.php', array('groups' => $groups,
+	$db = $db->disconnect();
+	$app->render('groupview.php', array('group' => $group,
 		'members' => $members));
 }
 
@@ -96,6 +105,7 @@ function invite($id){
 
 	$db->InviteUserToGroup($id, $inviteEmail);
 
+	$db = $db->disconnect();
 	$app->redirect('/group/' . $id);
 }
 
@@ -108,13 +118,37 @@ function joingroup($id){
 
 	$db->addUserToGroup($id, $user->getEmail());
 
+	$db = $db->disconnect();
 	$app->redirect('/group/' . $id);
 }
 
 function stream(){
 	$app = \Slim\Slim::getInstance();
+	$db = new AppDB();
+	$db = $db->connect();
+	$user = isGoogleUser();
+	$members = array();
+	$checkins = array();
 
-	$app->render('stream.php');
+	$groups = $db->getUserGroups($user->getEmail());
+	foreach ($groups as $group){
+		$groupMembers = $db->getGroupMembers($group['id']);
+		foreach ($groupMembers as $groupMember){
+			if ($user->getEmail() != $groupMember['email']){
+				$members[] = $groupMember;
+			}
+		}	
+	}
+
+	foreach ($members as $member){
+		$memberCheckins = $db->getUserLastCheckin($member['email']);
+		foreach ($memberCheckins as $memberCheckin){
+			$checkins[] = $memberCheckin;
+		}
+	}
+
+	$db = $db->disconnect();
+	$app->render('stream.php', array('checkins' => $checkins));
 }
 
 function checkinform(){
@@ -139,6 +173,7 @@ function checkin(){
 	);
 
 	$db->addUserCheckin($args);
+	$db = $db->disconnect();
 	$app->redirect('/stream');
 }
 
@@ -148,9 +183,11 @@ $app->get('/dashboard', $isGoogleUserWrapper, dashboard);
 $app->get('/stream', $isGoogleUserWrapper, stream);
 $app->get('/group/:id', $isGoogleUserWrapper, groupview);
 $app->get('/checkinform', $isGoogleUserWrapper, checkinform);
+
 $app->post('/invite/:id', $isGoogleUserWrapper, invite);
 $app->post('/join/:id', $isGoogleUserWrapper, joingroup);
 $app->post('/checkin', $isGoogleUserWrapper, checkin);
+
 $app->run();
 
 ?>

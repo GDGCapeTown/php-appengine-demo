@@ -1,21 +1,29 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>KeepInTouch</title>
-    </head>
-    <body>
-    	{% for group in groups %}
-        	{{group.name}}
-        	{{group.description}}
+{% extends "base.php" %}
 
-        	<form method="POST" action="/invite/{{group.id}}">
-        		<input name="email" type="email" />
-        		<input type="submit" value="Invite" />
-        	</form>
-        {% endfor %}
+{% block content %}
+    <div class="page-header">
+      <h1>Group<small> {{group.name}}</small></h1>
+    </div>
 
+    <h4>
+        Description: {{group.description}}
+    </h4>
+
+    <form method="POST" action="/invite/{{group.id}}">
+                <input name="email" type="email" />
+                <input type="submit" value="Invite" class="btn btn-primary"/>
+            </form>
+    
+    <h3>
+        Members:
+    </h3>    
+    <ul class="list-group">
         {% for member in members %}
-        	{{member.email}} {{member.status}}
+        <li class="list-group-item">
+            <h4>{{member.email}} <small>{{member.status}}</small></h4>
+        </li>  
         {% endfor %}
-    </body>
-</html>
+    </ul>
+    
+
+{% endblock %}

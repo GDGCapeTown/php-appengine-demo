@@ -1,0 +1,12 @@
+body {
+  padding-top: 50px;
+}
+
+form{
+	display:inline-block;
+}
+
+.signin-icon{
+	margin-top:20px;
+	width:300px;
+}

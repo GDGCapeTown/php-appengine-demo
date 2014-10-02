@@ -15,6 +15,10 @@ class AppDB{
 	    return $this;
 	}
 
+	public function disconnect(){
+		$this->db = null;
+	}
+
 	public function getUserGroups($email){
 		try{
 			return $this->db->query('SELECT appgroup.* from appgroup, member where member.groupid=appgroup.id and member.status="joined" and member.email="' . $email . '";');
@@ -78,6 +82,18 @@ class AppDB{
 	public function addUserToGroup($id, $email){
 		try{
 			return $this->db->query('update member set status="joined" where groupid=' . $id . ' and email="' . $email . '";');
+		}
+		catch(PDOException $ex){
+			throw $ex;
+			return null;
+		}
+
+		return null;
+	}
+
+	public function getUserLastCheckin($email){
+		try{
+			return $this->db->query('select * from checkin where email="' . $email . '" order by created desc limit 1;');
 		}
 		catch(PDOException $ex){
 			throw $ex;

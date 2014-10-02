@@ -1,23 +1,33 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>KeepInTouch</title>
-    </head>
-    <body>
-        Dashboard
+{% extends "base.php" %}
 
-        Groups
-        {% for group in groups %}
-            {{group.description}} <a href="/group/{{group.id}}" >View</a>
-        {% endfor %}
+{% block content %}
+    <div class="page-header">
+      <h1>Dashboard<small> Manage your groups..</small></h1>
+    </div>
 
-        Invited Groups
+    <h3>
+        My groups:
+    </h3>
+    <ul class="list-group">
+      {% for group in groups %}
+      <li class="list-group-item"><h3>{{group.name}} <small>{{group.description}}</small>   <a href="/group/{{group.id}}" class="label label-info">View</a></h3></li>
+      {% endfor %}
+    </ul>
+
+    <h3>
+        Invited groups:
+    </h3>    
+    <ul class="list-group">
         {% for group in invites %}
-            {{group.description}} <a href="/group/{{group.id}}" >View</a>
+        <li class="list-group-item">
+            <h3>{{group.name}} <small>{{group.description}}</small> <a href="/group/{{group.id}}" class="label label-info" >View</a>
             <form method="POST" action="/join/{{group.id}}">
-                <input type=submit Value="Join" />
+                <input type=submit class="btn btn-primary" value="Join" />
             </form>
+            </h3>
+        </li>  
         {% endfor %}
-        </ul>
-    </body>
-</html>
+    </ul>
+    
+
+{% endblock %}
